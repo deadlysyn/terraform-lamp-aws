@@ -8,3 +8,13 @@ variable "region" {
   default = "us-east-2"
 }
 
+variable "db_instance_type" {
+  type    = "string"
+  default = "db.t2.micro"
+}
+
+variable "db_password" {
+  description = "RDS instance password"
+  type        = "string"
+}
+
