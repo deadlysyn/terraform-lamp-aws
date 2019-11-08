@@ -102,6 +102,7 @@ resource "aws_db_instance" "rds" {
   multi_az                = true
   allocated_storage       = 10
   backup_retention_period = 0
+  skip_final_snapshot     = true
   engine                  = "mysql"
   engine_version          = "5.7"
   instance_class          = var.db_instance_type
