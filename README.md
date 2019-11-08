@@ -1,6 +1,6 @@
 # Terraforming LAMP
 
-![Simple LAMP Stack](https://gitlab.com/deadlysyn/terraforming-lamp-aws/raw/master/assets/lamp.jpg)
+![Simple LAMP Stack](https://gitlab.com/deadlysyn/terraform-lamp-aws/raw/master/assets/lamp.jpg)
 
 # Setup
 
