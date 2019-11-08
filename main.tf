@@ -111,3 +111,24 @@ resource "aws_db_instance" "rds" {
   parameter_group_name    = "default.mysql5.7"
 }
 
+######################################################################
+# Web configuration
+######################################################################
+
+data "aws_ami" "ubuntu" {
+  most_recent = true
+
+  filter {
+    name   = "name"
+    values = ["ubuntu/images/hvm-ssd/ubuntu-bionic-18.04-amd64-server-*"]
+  }
+
+  filter {
+    name   = "virtualization-type"
+    values = ["hvm"]
+  }
+
+  # Canonical
+  owners = ["099720109477"]
+}
+
