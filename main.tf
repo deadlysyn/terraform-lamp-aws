@@ -132,3 +132,25 @@ data "aws_ami" "ubuntu" {
   owners = ["099720109477"]
 }
 
+resource "aws_security_group" "http_ingress_instance" {
+  vpc_id = aws_vpc.vpc.id
+
+  ingress {
+    from_port   = var.web_port
+    to_port     = var.web_port
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    "Name" = "${var.env_name}-http-ingress-instance-sg"
+  }
+}
+
