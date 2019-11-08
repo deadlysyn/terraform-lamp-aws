@@ -223,3 +223,33 @@ resource "aws_lb" "alb" {
   }
 }
 
+resource "aws_lb_listener" "listener" {
+  load_balancer_arn = aws_lb.alb.arn
+  port              = 80
+
+  default_action {
+    target_group_arn = aws_lb_target_group.tg.arn
+    type             = "forward"
+  }
+}
+
+resource "aws_lb_target_group" "tg" {
+  vpc_id   = aws_vpc.vpc.id
+  port     = var.web_port
+  protocol = "HTTP"
+
+  health_check {
+    path    = "/"
+    port    = var.web_port
+    matcher = "200"
+  }
+
+  lifecycle {
+    create_before_destroy = true
+  }
+
+  tags = {
+    "Name" = "${var.env_name}-web-lb-tg"
+  }
+}
+
