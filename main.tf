@@ -50,3 +50,15 @@ resource "aws_subnet" "public_subnets" {
   }
 }
 
+resource "aws_subnet" "private_subnets" {
+  count             = length(data.aws_availability_zones.all.names)
+  vpc_id            = aws_vpc.vpc.id
+  cidr_block        = cidrsubnet(var.private_cidr, 2, count.index)
+  availability_zone = element(data.aws_availability_zones.all.names, count.index)
+  map_public_ip_on_launch = true
+
+  tags = {
+    "Name" = "${var.env_name}-private-subnet${count.index}"
+  }
+}
+
