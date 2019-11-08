@@ -154,3 +154,19 @@ resource "aws_security_group" "http_ingress_instance" {
   }
 }
 
+resource "aws_launch_configuration" "lc" {
+  # avoid name so ASG can be updated without conflicts
+  name_prefix     = "${var.env_name}-"
+  image_id        = data.aws_ami.ubuntu.id
+  instance_type   = var.web_instance_type
+  security_groups = [aws_security_group.http_ingress_instance.id]
+  user_data = templatefile("userdata.sh", {
+    web_port    = var.web_port,
+    web_message = var.web_message,
+    db_endpoint = aws_db_instance.rds.endpoint,
+    db_name     = aws_db_instance.rds.name,
+    db_username = aws_db_instance.rds.username,
+    db_status   = aws_db_instance.rds.status
+  })
+}
+

@@ -3,6 +3,22 @@ variable "env_name" {
   type        = "string"
 }
 
+variable "web_message" {
+  description = "Message displayed on web page"
+  type        = "string"
+  default     = "Hello World!"
+}
+
+variable "web_port" {
+  type    = "string"
+  default = "80"
+}
+
+variable "web_instance_type" {
+  type    = "string"
+  default = "t2.nano"
+}
+
 variable "region" {
   type    = "string"
   default = "us-east-2"
