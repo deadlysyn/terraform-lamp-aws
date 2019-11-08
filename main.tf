@@ -170,3 +170,56 @@ resource "aws_launch_configuration" "lc" {
   })
 }
 
+resource "aws_autoscaling_group" "asg" {
+  name     = "${var.env_name}-web-asg"
+  min_size = var.web_count_min
+  max_size = var.web_count_max
+
+  launch_configuration = aws_launch_configuration.lc.name
+  vpc_zone_identifier  = "${aws_subnet.private_subnets.*.id}"
+
+  target_group_arns     = [aws_lb_target_group.tg.arn]
+  health_check_type     = "ELB"
+  wait_for_elb_capacity = 1
+
+  lifecycle {
+    create_before_destroy = true
+  }
+
+  tag {
+    key                 = "Name"
+    value               = "${var.env_name}-instance-${uuid()}"
+    propagate_at_launch = true
+  }
+}
+
+resource "aws_security_group" "http_ingress_lb" {
+  name   = "${var.env_name}-http-ingress-lb-sg"
+  vpc_id = aws_vpc.vpc.id
+
+  ingress {
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
+resource "aws_lb" "alb" {
+  load_balancer_type = "application"
+  internal           = false
+  security_groups    = [aws_security_group.http_ingress_lb.id]
+  subnets            = "${aws_subnet.public_subnets.*.id}"
+
+  tags = {
+    "Name" = "${var.env_name}-web-lb"
+  }
+}
+
