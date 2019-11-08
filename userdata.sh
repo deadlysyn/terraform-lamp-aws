@@ -9,10 +9,11 @@ cat >index.html <<EOF
 <body>
   <h1>${web_message}</h1>
   <ul>
-    <li><b>RDS endpoint:</b> <pre>${db_endpoint}</pre>
-    <li><b>Database name:</b> <pre>${db_name}</pre>
-    <li><b>Database user:</b> <pre>${db_username}</pre>
-    <li><b>Database status:</b> <pre>${db_status}</pre>
+    <li><b>RDS endpoint:</b> <pre>${db_endpoint}</pre></li>
+    <li><b>Database name:</b> <pre>${db_name}</pre></li>
+    <li><b>Database user:</b> <pre>${db_username}</pre></li>
+    <li><b>Database password:</b> <pre>Yeah right! :-)</pre></li>
+    <li><b>Database status:</b> <pre>${db_status}</pre></li>
   </ul>
 </body>
 </html>
