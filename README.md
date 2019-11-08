@@ -2,7 +2,8 @@
 
 - Provided CIDRs are further subnetted to create public and private subnets spanning all AZs in the region for HA
 - Auto-select latest Ubuntu AMI to work in all regions, but could give filter more thought (e.g. pin version for a real production app)
-- Userdata scripts are good for small tweaks, but pre-baked AMI via packer would be better in production and avoid needing to route private subnet through IGW for config/update
+- Userdata scripts are good for small tweaks, but pre-baked AMI via packer would be better in production
+- Used `busybox` to avoid needing to route private subnet through IGW for config/update
 - Security groups could be refined
 -   RDS is provisioned and details fed into web process, but:
   -   Would be cooler if 'hello world' was injected as SQL and actually read by web server
