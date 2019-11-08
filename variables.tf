@@ -3,6 +3,11 @@ variable "env_name" {
   type        = "string"
 }
 
+variable "region" {
+  type    = "string"
+  default = "us-east-2"
+}
+
 variable "web_message" {
   description = "Message displayed on web page"
   type        = "string"
@@ -19,9 +24,16 @@ variable "web_instance_type" {
   default = "t2.nano"
 }
 
-variable "region" {
-  type    = "string"
-  default = "us-east-2"
+variable "web_count_min" {
+  description = "Starting point for web autoscaling group"
+  type        = "string"
+  default     = "2"
+}
+
+variable "web_count_max" {
+  description = "Upper bound for web autoscaling group"
+  type        = "string"
+  default     = "2"
 }
 
 variable "db_instance_type" {
