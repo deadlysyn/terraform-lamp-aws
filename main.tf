@@ -1,3 +1,9 @@
+terraform {
+  required_providers {
+    aws = "~> 2.35"
+  }
+}
+
 provider "aws" {
   region = var.region
 }
