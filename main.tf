@@ -98,7 +98,8 @@ resource "aws_security_group" "mysql_ingress" {
 
 resource "aws_db_subnet_group" "default" {
   name       = "main"
-  subnet_ids = "${aws_subnet.private_subnets.*.id}"
+  subnet_ids = aws_subnet.private_subnets[*].id
+  # subnet_ids = "${aws_subnet.private_subnets.*.id}"
 }
 
 resource "aws_db_instance" "rds" {
@@ -183,7 +184,8 @@ resource "aws_autoscaling_group" "asg" {
   max_size = var.web_count_max
 
   launch_configuration = aws_launch_configuration.lc.name
-  vpc_zone_identifier  = "${aws_subnet.private_subnets.*.id}"
+  vpc_zone_identifier  = aws_subnet.private_subnets[*].id
+  # vpc_zone_identifier  = "${aws_subnet.private_subnets.*.id}"
 
   target_group_arns     = [aws_lb_target_group.tg.arn]
   health_check_type     = "ELB"
@@ -223,7 +225,8 @@ resource "aws_lb" "alb" {
   load_balancer_type = "application"
   internal           = false
   security_groups    = [aws_security_group.http_ingress_lb.id]
-  subnets            = "${aws_subnet.public_subnets.*.id}"
+  subnets            = aws_subnet.public_subnets[*].id
+  # subnets            = "${aws_subnet.public_subnets.*.id}"
 
   tags = {
     "Name" = "${var.env_name}-web-lb"
