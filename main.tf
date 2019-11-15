@@ -199,7 +199,7 @@ resource "aws_autoscaling_group" "asg" {
 
   tag {
     key                 = "Name"
-    value               = "${var.env_name}-instance-${uuid()}"
+    value               = "${var.env_name}-instance"
     propagate_at_launch = true
   }
 }
