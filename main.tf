@@ -10,7 +10,9 @@ provider "aws" {
   region = var.region
 }
 
-data "aws_availability_zones" "all" {}
+data "aws_availability_zones" "available" {
+  state = "available"
+}
 
 ######################################################################
 # Network configuration
@@ -47,16 +49,16 @@ resource "aws_route_table" "public_route" {
 }
 
 resource "aws_route_table_association" "public_rta" {
-  count          = length(data.aws_availability_zones.all.names)
+  count          = length(data.aws_availability_zones.available.names)
   subnet_id      = element(aws_subnet.public_subnets[*].id, count.index)
   route_table_id = aws_route_table.public_route.id
 }
 
 resource "aws_subnet" "public_subnets" {
-  count                   = length(data.aws_availability_zones.all.names)
+  count                   = length(data.aws_availability_zones.available.names)
   vpc_id                  = aws_vpc.vpc.id
   cidr_block              = cidrsubnet(var.public_cidr, 2, count.index)
-  availability_zone       = element(data.aws_availability_zones.all.names, count.index)
+  availability_zone       = element(data.aws_availability_zones.available.names, count.index)
   map_public_ip_on_launch = true
 
   tags = {
@@ -65,10 +67,10 @@ resource "aws_subnet" "public_subnets" {
 }
 
 resource "aws_subnet" "private_subnets" {
-  count             = length(data.aws_availability_zones.all.names)
+  count             = length(data.aws_availability_zones.available.names)
   vpc_id            = aws_vpc.vpc.id
   cidr_block        = cidrsubnet(var.private_cidr, 2, count.index)
-  availability_zone = element(data.aws_availability_zones.all.names, count.index)
+  availability_zone = element(data.aws_availability_zones.available.names, count.index)
 
   tags = {
     "Name" = "${var.env_name}-private-subnet${count.index}"
