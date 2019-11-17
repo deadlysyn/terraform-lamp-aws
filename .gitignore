@@ -2,3 +2,4 @@
 *.tfstate*
 .envrc
 plan
+certs
