@@ -10,122 +10,6 @@ provider "aws" {
   region = var.region
 }
 
-data "aws_availability_zones" "available" {
-  state = "available"
-}
-
-######################################################################
-# Network configuration
-######################################################################
-
-resource "aws_vpc" "vpc" {
-  cidr_block           = var.vpc_cidr
-  enable_dns_hostnames = true
-
-  tags = {
-    "Name" = "${var.env_name}-vpc"
-  }
-}
-
-resource "aws_internet_gateway" "igw" {
-  vpc_id = aws_vpc.vpc.id
-
-  tags = {
-    "Name" = "${var.env_name}-igw"
-  }
-}
-
-resource "aws_route_table" "public_route" {
-  vpc_id = aws_vpc.vpc.id
-
-  route {
-    cidr_block = "0.0.0.0/0"
-    gateway_id = aws_internet_gateway.igw.id
-  }
-
-  tags = {
-    "Name" = "${var.env_name}-public-route"
-  }
-}
-
-resource "aws_route_table_association" "public_rta" {
-  count          = length(data.aws_availability_zones.available.names)
-  subnet_id      = element(aws_subnet.public_subnets[*].id, count.index)
-  route_table_id = aws_route_table.public_route.id
-}
-
-resource "aws_subnet" "public_subnets" {
-  count                   = length(data.aws_availability_zones.available.names)
-  vpc_id                  = aws_vpc.vpc.id
-  cidr_block              = cidrsubnet(var.public_cidr, 2, count.index)
-  availability_zone       = element(data.aws_availability_zones.available.names, count.index)
-  map_public_ip_on_launch = true
-
-  tags = {
-    "Name" = "${var.env_name}-public-subnet${count.index}"
-  }
-}
-
-resource "aws_subnet" "private_subnets" {
-  count             = length(data.aws_availability_zones.available.names)
-  vpc_id            = aws_vpc.vpc.id
-  cidr_block        = cidrsubnet(var.private_cidr, 2, count.index)
-  availability_zone = element(data.aws_availability_zones.available.names, count.index)
-
-  tags = {
-    "Name" = "${var.env_name}-private-subnet${count.index}"
-  }
-}
-
-######################################################################
-# RDS configuration
-######################################################################
-
-resource "aws_security_group" "mysql_ingress" {
-  name   = "${var.env_name}-myql-ingress-sg"
-  vpc_id = aws_vpc.vpc.id
-
-  ingress {
-    from_port   = 3306
-    to_port     = 3306
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-}
-
-resource "aws_db_subnet_group" "default" {
-  name       = "main"
-  subnet_ids = aws_subnet.private_subnets[*].id
-}
-
-resource "aws_db_instance" "rds" {
-  vpc_security_group_ids  = [aws_security_group.mysql_ingress.id]
-  db_subnet_group_name    = aws_db_subnet_group.default.name
-  maintenance_window      = "Sat:00:00-Sat:03:00"
-  multi_az                = true
-  allocated_storage       = 10
-  backup_retention_period = 0
-  skip_final_snapshot     = true
-  engine                  = "mysql"
-  engine_version          = "5.7"
-  instance_class          = var.db_instance_type
-  name                    = "testdb"
-  username                = "root"
-  password                = var.db_password
-  parameter_group_name    = "default.mysql5.7"
-}
-
-######################################################################
-# Web configuration
-######################################################################
-
 data "aws_ami" "ubuntu" {
   most_recent = true
 
@@ -222,6 +106,18 @@ resource "aws_security_group" "http_ingress_lb" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 }
+
+# TODO: Delegate subdomain + ACM config
+#
+# resource "aws_iam_server_certificate" "test_cert" {
+#   name_prefix      = "example-cert"
+#   certificate_body = "${file("certs/cert.pem")}"
+#   private_key      = "${file("certs/key.pem")}"
+
+#   lifecycle {
+#     create_before_destroy = true
+#   }
+# }
 
 resource "aws_lb" "alb" {
   load_balancer_type = "application"
