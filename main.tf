@@ -50,8 +50,8 @@ resource "aws_security_group" "http_ingress_instance" {
 }
 
 resource "aws_launch_configuration" "lc" {
-  # avoid name so ASG can be updated without conflicts
-  name_prefix     = "${var.env_name}-"
+  # avoid static name resource can be updated
+  name_prefix     = "${var.env_name}-lc-"
   image_id        = data.aws_ami.ubuntu.id
   instance_type   = var.web_instance_type
   security_groups = [aws_security_group.http_ingress_instance.id]
@@ -66,9 +66,10 @@ resource "aws_launch_configuration" "lc" {
 }
 
 resource "aws_autoscaling_group" "asg" {
-  name     = "${var.env_name}-web-asg"
-  min_size = var.web_count_min
-  max_size = var.web_count_max
+  # avoid static name resource can be updated
+  name_prefix = "${var.env_name}-asg-"
+  min_size    = var.web_count_min
+  max_size    = var.web_count_max
 
   launch_configuration = aws_launch_configuration.lc.name
   vpc_zone_identifier  = aws_subnet.private_subnets[*].id
