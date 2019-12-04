@@ -50,7 +50,7 @@ resource "aws_security_group" "http_ingress_instance" {
 }
 
 resource "aws_launch_configuration" "lc" {
-  # avoid static name resource can be updated
+  # avoid static name so resource can be updated
   name_prefix     = "${var.env_name}-lc-"
   image_id        = data.aws_ami.ubuntu.id
   instance_type   = var.web_instance_type
@@ -66,7 +66,7 @@ resource "aws_launch_configuration" "lc" {
 }
 
 resource "aws_autoscaling_group" "asg" {
-  # avoid static name resource can be updated
+  # avoid static name so resource can be updated
   name_prefix = "${var.env_name}-asg-"
   min_size    = var.web_count_min
   max_size    = var.web_count_max
