@@ -1,7 +1,3 @@
-######################################################################
-# RDS configuration
-######################################################################
-
 resource "aws_security_group" "mysql_ingress" {
   name   = "${var.env_name}-myql-ingress-sg"
   vpc_id = aws_vpc.vpc.id
