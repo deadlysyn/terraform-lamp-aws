@@ -9,9 +9,9 @@ This repo has an accompanying blog series:
 - [Getting Out More](https://blog.devopsdreams.io/getting-out-more)
 - [AWS and DNS and TLS, Oh My!](https://blog.devopsdreams.io/aws-dns-and-tls)
 
-What this builds (except it's served over TLS now!):
+Here's what we build:
 
-![Simple LAMP Stack](https://gitlab.com/deadlysyn/terraform-lamp-aws/raw/master/assets/lamp.jpg)
+![Simple LAMP Stack](https://gitlab.com/deadlysyn/terraform-lamp-aws/raw/master/assets/lamp.png)
 
 # Setup
 
@@ -52,7 +52,7 @@ This will work with AWS' free tier. Clone this repo, then:
 ❯ terraform destroy
 ```
 
-The RDS instance can take 10-15 minutes to provision, and cert validation may take up to 30 minutes (though usually completes much faster)... When all is complete done, you should be able to access `https://web_domain`.
+The RDS instance can take 10-15 minutes to provision, and cert validation may take up to 30 minutes (though usually completes much faster)... When all is done, you should be able to access `https://web_domain` and `https://www.web_domain` and see a valid Amazon-issued TLS certificate.
 
 ```bash
 ❯ http https://technopoly.io
