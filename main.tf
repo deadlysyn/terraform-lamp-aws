@@ -50,7 +50,7 @@ resource "aws_security_group" "http_ingress_instance" {
 }
 
 resource "aws_launch_configuration" "lc" {
-  # avoid static name so resource can be updated
+  # Avoid static name so resource can be updated.
   name_prefix     = "${var.env_name}-lc-"
   image_id        = data.aws_ami.ubuntu.id
   instance_type   = var.web_instance_type
@@ -66,7 +66,7 @@ resource "aws_launch_configuration" "lc" {
 }
 
 resource "aws_autoscaling_group" "asg" {
-  # avoid static name so resource can be updated
+  # Avoid static name so resource can be updated.
   name_prefix = "${var.env_name}-asg-"
   min_size    = var.web_count_min
   max_size    = var.web_count_max
@@ -77,6 +77,10 @@ resource "aws_autoscaling_group" "asg" {
   target_group_arns     = [aws_lb_target_group.tg.arn]
   health_check_type     = "ELB"
   wait_for_elb_capacity = 1
+
+  # Ensure we have a validated cert before spinning up
+  # ASG which relies on ALB/Listener health.
+  depends_on = [aws_acm_certificate_validation.cert]
 
   lifecycle {
     create_before_destroy = true
@@ -94,8 +98,8 @@ resource "aws_security_group" "http_ingress_lb" {
   vpc_id = aws_vpc.vpc.id
 
   ingress {
-    from_port   = 80
-    to_port     = 80
+    from_port   = var.lb_port
+    to_port     = var.lb_port
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
@@ -108,17 +112,24 @@ resource "aws_security_group" "http_ingress_lb" {
   }
 }
 
-# TODO: Delegate subdomain + ACM config
-#
-# resource "aws_iam_server_certificate" "test_cert" {
-#   name_prefix      = "example-cert"
-#   certificate_body = "${file("certs/cert.pem")}"
-#   private_key      = "${file("certs/key.pem")}"
+resource "aws_acm_certificate" "cert" {
+  domain_name               = var.web_domain
+  subject_alternative_names = var.alt_names
+  validation_method         = "DNS"
 
-#   lifecycle {
-#     create_before_destroy = true
-#   }
-# }
+  tags = {
+    "Name" = "${var.env_name}-acm-cert"
+  }
+
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
+resource "aws_acm_certificate_validation" "cert" {
+  certificate_arn         = aws_acm_certificate.cert.arn
+  validation_record_fqdns = aws_route53_record.cert_validation[*].fqdn
+}
 
 resource "aws_lb" "alb" {
   load_balancer_type = "application"
@@ -133,7 +144,10 @@ resource "aws_lb" "alb" {
 
 resource "aws_lb_listener" "listener" {
   load_balancer_arn = aws_lb.alb.arn
-  port              = 80
+  port              = var.lb_port
+  protocol          = "HTTPS"
+  ssl_policy        = "ELBSecurityPolicy-2016-08"
+  certificate_arn   = aws_acm_certificate_validation.cert.certificate_arn
 
   default_action {
     target_group_arn = aws_lb_target_group.tg.arn
