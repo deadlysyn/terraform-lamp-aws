@@ -19,22 +19,11 @@ resource "aws_route53_zone" "public" {
   }
 }
 
-resource "aws_route53_record" "apex" {
-  zone_id = aws_route53_zone.public.zone_id
-  name    = var.web_domain
+resource "aws_route53_record" "web" {
+  count   = length(local.fqdns)
+  name    = element(local.fqdns, count.index)
   type    = "A"
-
-  alias {
-    name                   = aws_lb.alb.dns_name
-    zone_id                = aws_lb.alb.zone_id
-    evaluate_target_health = true
-  }
-}
-
-resource "aws_route53_record" "www" {
   zone_id = aws_route53_zone.public.zone_id
-  name    = "www.${var.web_domain}"
-  type    = "A"
 
   alias {
     name                   = aws_lb.alb.dns_name
@@ -44,7 +33,7 @@ resource "aws_route53_record" "www" {
 }
 
 resource "aws_route53_record" "cert_validation" {
-  count   = length(concat([var.web_domain], var.alt_names))
+  count   = length(local.fqdns)
   name    = element(aws_acm_certificate.cert.domain_validation_options[*].resource_record_name, count.index)
   type    = element(aws_acm_certificate.cert.domain_validation_options[*].resource_record_type, count.index)
   records = [element(aws_acm_certificate.cert.domain_validation_options[*].resource_record_value, count.index)]
