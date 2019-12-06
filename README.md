@@ -101,13 +101,12 @@ Dec 06 03:24:30 ip-10-1-2-58 systemd[1]: Started A high performance web server a
 # Notes and Enhancement Ideas
 
 - Provided CIDRs are further subnetted to create public and private subnets spanning all AZs in the region for HA
-- Auto-select latest Ubuntu AMI to work in all regions, but could give filter more thought (e.g. pin version for a real production app)
-- Userdata scripts are good for small tweaks, but pre-baked AMI via packer would be better in production
+- Latest Ubuntu AMI is auto-selected to work in all regions; filter could be more thoughtful (e.g. pin version for production app)
+- User data script is used for small tweaks, but pre-baked AMI via packer might be better
 - RDS is provisioned and details fed into web process, but:
-  - Would be cooler if 'hello world' was injected as SQL and actually read by web server
+  - Would be cooler if `web_message` was injected as SQL and actually read by web server
   - `engine_version` is MAJOR.MINOR so PATCH upgrades will be automatic
 - `db_password` comes from `.envrc` (picked up from runtime environment)
-- Could support map of tags vs simply using `env_name`, e.g. `environment`, `purpose`, etc.
-- Ideally would use modules for common tasks (don't reinvent the wheel, DRY)
-- In a modular world, remote state could be leveraged to consume cross-module facts
+- Could support map of tags vs simply using `env_name`, e.g. allow adding `environment`, `purpose`, etc.
+- Ideally would use modules for common tasks (DRY it up)
 - This is optimized to fit in free tier, but a real database would need larger instances, replicas, backups, etc.
