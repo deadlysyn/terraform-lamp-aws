@@ -91,13 +91,6 @@ resource "aws_route_table_association" "private_rta" {
 # depending on the target region. Be sure to think about scaling
 # requirements when selecting CIDR ranges.
 
-locals {
-  # When we have 2-4 AZs in a region divide the public and private
-  # CIDR ranges into 4 subnets (add 2 bits to netmask). In larger
-  # regions with >4 AZs, divide into 8 subnets (add 3 bits).
-  newbits = length(data.aws_availability_zones.available.names) > 4 ? 3 : 2
-}
-
 resource "aws_subnet" "public_subnets" {
   count                   = length(data.aws_availability_zones.available.names)
   vpc_id                  = aws_vpc.vpc.id
