@@ -10,6 +10,16 @@ provider "aws" {
   region = var.region
 }
 
+
+locals {
+  # When we have 2-4 AZs in a region divide the public and private
+  # CIDR ranges into 4 subnets (add 2 bits to netmask). In larger
+  # regions with >4 AZs, divide into 8 subnets (add 3 bits).
+  newbits = length(data.aws_availability_zones.available.names) > 4 ? 3 : 2
+  fqdns   = concat([var.web_domain], var.alt_names)
+}
+
+
 data "aws_ami" "ubuntu" {
   most_recent = true
 
