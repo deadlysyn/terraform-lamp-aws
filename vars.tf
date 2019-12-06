@@ -1,63 +1,72 @@
 variable "env_name" {
   description = "Short descriptive name to help identify resources we create"
-  type        = "string"
+  type        = string
 }
 
 variable "region" {
-  type    = "string"
-  default = "us-east-2"
+  description = "AWS region to target"
+  type        = string
+}
+
+variable "alt_names" {
+  description = "Subject Alternate Names for TLS cert; web_domain will also be included"
+  type        = list(string)
+}
+
+variable "web_domain" {
+  description = "Top-level domain / Route53 Hosted Zone e.g. example.com"
+  type        = string
 }
 
 variable "web_message" {
   description = "Message displayed on web page"
-  type        = "string"
-  default     = "Hello World!"
+  type        = string
 }
 
 variable "web_port" {
-  type    = "string"
-  default = "80"
+  description = "Private subnet NGINX port"
+  type        = string
+}
+
+variable "lb_port" {
+  description = "Internet-facing ALB port"
+  type        = string
 }
 
 variable "web_instance_type" {
-  type    = "string"
-  default = "t2.nano"
+  type = string
 }
 
 variable "web_count_min" {
-  description = "Starting point for web autoscaling group"
-  type        = "string"
-  default     = "2"
+  description = "Starting point for web auto scaling group"
+  type        = string
 }
 
 variable "web_count_max" {
-  description = "Upper bound for web autoscaling group"
-  type        = "string"
-  default     = "2"
+  description = "Upper bound for web auto scaling group"
+  type        = string
 }
 
 variable "db_instance_type" {
-  type    = "string"
-  default = "db.t2.micro"
+  type = string
 }
 
 variable "db_password" {
-  description = "RDS instance password"
-  type        = "string"
+  description = "RDS instance password; sourced from environment"
+  type        = string
 }
 
 variable "vpc_cidr" {
-  type    = "string"
-  default = "10.1.0.0/16"
+  description = "RFC1918 CIDR range for VPC"
+  type        = string
 }
 
 variable "public_cidr" {
-  type    = "string"
-  default = "10.1.1.0/24"
+  description = "RFC1918 CIDR range for public subnets (subset of vpc_cidr)"
+  type        = string
 }
 
 variable "private_cidr" {
-  type    = "string"
-  default = "10.1.2.0/24"
+  description = "RFC1918 CIDR range for private subnets (subset of vpc_cidr)"
+  type        = string
 }
-
