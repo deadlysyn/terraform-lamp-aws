@@ -1,8 +1,4 @@
-######################################################################
-# Network configuration
-######################################################################
-
-# Get list of all available AZs in region
+# Get list of all available AZs in region.
 data "aws_availability_zones" "available" {
   state = "available"
 }
@@ -22,6 +18,12 @@ resource "aws_internet_gateway" "igw" {
     "Name" = "${var.env_name}-igw"
   }
 }
+
+# Note: You could route all traffic through a single NAT gateway, but
+# if a single AZ goes down all outbound connecitivity would be lost.
+# Consider the cost/risk benefit. This consumes more EIPs (you may
+# need to request more), but aside from better HA it also addresses
+# NAT scaling factors (bandwidth, connections).
 
 resource "aws_nat_gateway" "ngw" {
   count         = length(data.aws_availability_zones.available.names)
@@ -82,17 +84,17 @@ resource "aws_route_table_association" "private_rta" {
   route_table_id = element(aws_route_table.private_route[*].id, count.index)
 }
 
-# Important Note:
-# cidrsubnet will automatically carve smaller subnets out of the configured
-# CIDR ranges to satisfy HA and RDS subnet group requirements. However,
-# since all regions do not have a consistent number of AZs, the size of
-# the auto-generated subnets will vary depending on the target region. Be
-# sure to think about scaling requirements when selecting CIDR ranges.
+# Note: cidrsubnet will automatically carve smaller subnets out of the
+# configured CIDR ranges to satisfy HA and RDS subnet group
+# requirements. However, since all regions do not have a consistent
+# number of AZs, the size of the auto-generated subnets will vary
+# depending on the target region. Be sure to think about scaling
+# requirements when selecting CIDR ranges.
 
 locals {
-  # When we have 2, 3 or 4 AZs in a region divide the public and private
-  # CIDR ranges into 4 subnets (add 2 bits to netmask). In larger regions
-  # with >4 AZs, divide into 8 subnets (add 3 bits to netmask).
+  # When we have 2-4 AZs in a region divide the public and private
+  # CIDR ranges into 4 subnets (add 2 bits to netmask). In larger
+  # regions with >4 AZs, divide into 8 subnets (add 3 bits).
   newbits = length(data.aws_availability_zones.available.names) > 4 ? 3 : 2
 }
 
