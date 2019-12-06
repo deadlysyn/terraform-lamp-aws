@@ -1,8 +1,10 @@
-env_name = "test"
+# See vars.tf for descriptions of each item...
+
+env_name = "usefulTagToRecognizeCreatedResources"
 region   = "us-east-2"
 
-web_domain        = "technopoly.io"
-alt_names         = ["www.technopoly.io"]
+web_domain        = "yourdomain.tld"
+alt_names         = ["www.yourdomain.tld", "somehost.yourdomain.tld"]
 web_message       = "Hello World!"
 web_instance_type = "t2.nano"
 web_count_min     = "2"
