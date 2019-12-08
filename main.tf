@@ -77,9 +77,12 @@ resource "aws_launch_configuration" "lc" {
 
 resource "aws_autoscaling_group" "asg" {
   # Avoid static name so resource can be updated.
-  name_prefix = "${var.env_name}-asg-"
-  min_size    = var.web_count_min
-  max_size    = var.web_count_max
+  name_prefix               = "${var.env_name}-asg-"
+  min_size                  = var.web_count_min
+  max_size                  = var.web_count_max
+  desired_capacity          = var.web_count_min
+  default_cooldown          = 60
+  health_check_grace_period = 120
 
   launch_configuration = aws_launch_configuration.lc.name
   vpc_zone_identifier  = aws_subnet.private_subnets[*].id
